@@ -2,7 +2,7 @@
 set -e
 
 MODEL_ID="${MODEL_ID:-3327244}"
-MODEL_DIR="${MODEL_DIR:-/workspace/runpod-slim/ComfyUI/models/unet}"
+MODEL_DIR="${MODEL_DIR:-/workspace/runpod-slim/ComfyUI/models/diffusion_models}"
 
 echo "======================================"
 echo "   CIVITAI MODEL DOWNLOADER"
