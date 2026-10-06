@@ -71,3 +71,19 @@ echo "       DOWNLOAD SUCCESS"
 echo "======================================"
 
 ls -lh "$TARGET"
+
+# ======================================
+# INSTALL WORKFLOW
+# ======================================
+
+COMFY_DIR="/workspace/runpod-slim/ComfyUI"
+WORKFLOW_DIR="$COMFY_DIR/user/default/workflows"
+
+mkdir -p "$WORKFLOW_DIR"
+
+cp "$(dirname "$0")/workflows/moodyKrea2Minimal_v40.json" \
+   "$WORKFLOW_DIR/moodyKrea2Minimal_v40.json"
+
+echo ""
+echo "Workflow installed:"
+ls -lh "$WORKFLOW_DIR/moodyKrea2Minimal_v40.json"
