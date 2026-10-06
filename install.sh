@@ -53,6 +53,7 @@ if [ -s "$TARGET" ]; then
     echo "Already exists - SKIP"
 else
     echo "Downloading..."
+    echo "Destination: $TARGET"
 
     curl -L \
         --fail \
@@ -64,6 +65,7 @@ else
         "$URL"
 fi
 
+echo ""
 echo "======================================"
 echo "       DOWNLOAD SUCCESS"
 echo "======================================"
