@@ -87,3 +87,36 @@ cp "$(dirname "$0")/workflows/moodyKrea2Minimal_v40.json" \
 echo ""
 echo "Workflow installed:"
 ls -lh "$WORKFLOW_DIR/moodyKrea2Minimal_v40.json"
+
+
+# ==============================
+# PERSONAL LORA - GOOGLE DRIVE
+# ==============================
+
+COMFY_DIR="/workspace/runpod-slim/ComfyUI"
+LORA_DIR="$COMFY_DIR/models/loras"
+
+LORA_ID="1cM6S0oilj8NC5HVgR8psjCyt_UDdmiKl"
+LORA_NAME="personal_lora.safetensors"
+
+mkdir -p "$LORA_DIR"
+
+echo "======================================"
+echo "   PERSONAL LORA"
+echo "======================================"
+
+if [ -f "$LORA_DIR/$LORA_NAME" ] && [ -s "$LORA_DIR/$LORA_NAME" ]; then
+    echo "LoRA already exists - SKIP"
+else
+    echo "Installing gdown..."
+    pip install -q -U gdown
+
+    echo "Downloading personal LoRA..."
+
+    gdown \
+      "https://drive.google.com/file/d/$LORA_ID/view?usp=drive_link" \
+      -O "$LORA_DIR/$LORA_NAME" \
+      --continue
+fi
+
+ls -lh "$LORA_DIR/$LORA_NAME"
