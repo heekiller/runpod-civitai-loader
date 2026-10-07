@@ -184,3 +184,75 @@ fi
 
 echo "LoRA installed:"
 ls -lh "$TARGET"
+
+
+# ==============================
+# KREA 2 MODELS
+# ==============================
+
+COMFY_DIR="/workspace/runpod-slim/ComfyUI"
+
+VAE_DIR="$COMFY_DIR/models/vae"
+TEXT_ENCODER_DIR="$COMFY_DIR/models/text_encoders"
+
+mkdir -p "$VAE_DIR" "$TEXT_ENCODER_DIR"
+
+echo "======================================"
+echo "   KREA 2 MODELS"
+echo "======================================"
+
+# ------------------------------
+# VAE
+# ------------------------------
+
+VAE_FILE="$VAE_DIR/qwen_image_vae.safetensors"
+
+if [ -s "$VAE_FILE" ]; then
+    echo "VAE already exists - SKIP"
+else
+    echo "Downloading VAE..."
+
+    wget -c \
+      "https://huggingface.co/Comfy-Org/Krea-2/resolve/main/vae/qwen_image_vae.safetensors" \
+      -O "$VAE_FILE"
+fi
+
+# ------------------------------
+# TEXT ENCODER
+# ------------------------------
+
+TEXT_FILE="$TEXT_ENCODER_DIR/qwen3vl_4b_fp8_scaled.safetensors"
+
+if [ -s "$TEXT_FILE" ]; then
+    echo "Text Encoder already exists - SKIP"
+else
+    echo "Downloading Text Encoder..."
+
+    wget -c \
+      "https://huggingface.co/Comfy-Org/Krea-2/resolve/main/text_encoders/qwen3vl_4b_fp8_scaled.safetensors" \
+      -O "$TEXT_FILE"
+fi
+
+echo "Krea-2 models installed."
+
+
+# ==============================
+# RGTREE COMFY
+# ==============================
+
+CUSTOM_NODE_DIR="$COMFY_DIR/custom_nodes/rgthree-comfy"
+
+if [ -d "$CUSTOM_NODE_DIR" ]; then
+    echo "rgthree-comfy already installed - UPDATE"
+
+    cd "$CUSTOM_NODE_DIR"
+    git pull
+else
+    echo "Installing rgthree-comfy..."
+
+    git clone \
+      https://github.com/rgthree/rgthree-comfy.git \
+      "$CUSTOM_NODE_DIR"
+fi
+
+echo "rgthree-comfy installed."
