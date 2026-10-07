@@ -120,3 +120,67 @@ else
 fi
 
 ls -lh "$LORA_DIR/$LORA_NAME"
+
+
+# ==============================
+# CIVITAI LORA
+# ==============================
+
+COMFY_DIR="/workspace/runpod-slim/ComfyUI"
+LORA_DIR="$COMFY_DIR/models/loras"
+
+LORA_VERSION_ID="3215719"
+
+mkdir -p "$LORA_DIR"
+
+echo "======================================"
+echo "   CIVITAI LORA"
+echo "======================================"
+echo "Version ID : $LORA_VERSION_ID"
+echo "Destination: $LORA_DIR"
+
+if [ -z "$CIVITAI_TOKEN" ]; then
+    echo "ERROR: CIVITAI_TOKEN is missing"
+    exit 1
+fi
+
+INFO=$(curl -fsSL \
+    --retry 5 \
+    --retry-delay 3 \
+    -H "Authorization: Bearer $CIVITAI_TOKEN" \
+    -H "Accept: application/json" \
+    "https://civitai.com/api/v1/model-versions/$LORA_VERSION_ID")
+
+LORA_NAME=$(echo "$INFO" | jq -r '.files[0].name')
+LORA_URL=$(echo "$INFO" | jq -r '.files[0].downloadUrl')
+
+if [ -z "$LORA_NAME" ] || [ "$LORA_NAME" = "null" ]; then
+    echo "ERROR: LoRA file not found"
+    echo "$INFO" | jq .
+    exit 1
+fi
+
+if [ -z "$LORA_URL" ] || [ "$LORA_URL" = "null" ]; then
+    echo "ERROR: LoRA download URL not found"
+    exit 1
+fi
+
+TARGET="$LORA_DIR/$LORA_NAME"
+
+if [ -s "$TARGET" ]; then
+    echo "LoRA already exists - SKIP"
+else
+    echo "Downloading: $LORA_NAME"
+
+    curl -L \
+        --fail \
+        --retry 10 \
+        --retry-delay 5 \
+        --continue-at - \
+        -H "Authorization: Bearer $CIVITAI_TOKEN" \
+        -o "$TARGET" \
+        "$LORA_URL"
+fi
+
+echo "LoRA installed:"
+ls -lh "$TARGET"
