@@ -86,61 +86,80 @@ ls -lh "$TARGET"
 
 
 # ======================================
-# CIVITAI LORA
+# CIVITAI LORAS
 # ======================================
 
 echo ""
 echo "======================================"
-echo "   CIVITAI LORA"
+echo "   CIVITAI LORAS"
 echo "======================================"
 
 LORA_DIR="$COMFY_DIR/models/loras"
-LORA_VERSION_ID="3215719"
 
 mkdir -p "$LORA_DIR"
 
-INFO=$(curl -fsSL \
-    --retry 5 \
-    --retry-delay 3 \
-    -H "Authorization: Bearer $CIVITAI_TOKEN" \
-    -H "Accept: application/json" \
-    "https://civitai.com/api/v1/model-versions/$LORA_VERSION_ID")
+CIVITAI_LORA_VERSIONS=(
+    "3215719"
+    "3116175"
+    "3105253"
+    "3068874"
+    "3122721"
+)
 
-LORA_NAME=$(echo "$INFO" | jq -r '.files[0].name')
-LORA_URL=$(echo "$INFO" | jq -r '.files[0].downloadUrl')
+for LORA_VERSION_ID in "${CIVITAI_LORA_VERSIONS[@]}"; do
 
-echo "LoRA: $LORA_NAME"
+    echo ""
+    echo "--------------------------------------"
+    echo "LoRA Version: $LORA_VERSION_ID"
+    echo "--------------------------------------"
 
-if [ -z "$LORA_NAME" ] || [ "$LORA_NAME" = "null" ]; then
-    echo "ERROR: LoRA file not found"
-    echo "$INFO" | jq .
-    exit 1
-fi
-
-if [ -z "$LORA_URL" ] || [ "$LORA_URL" = "null" ]; then
-    echo "ERROR: LoRA download URL not found"
-    exit 1
-fi
-
-TARGET="$LORA_DIR/$LORA_NAME"
-
-if [ -s "$TARGET" ]; then
-    echo "LoRA already exists - SKIP"
-else
-    echo "Downloading LoRA..."
-
-    curl -L \
-        --fail \
-        --retry 10 \
-        --retry-delay 5 \
-        --continue-at - \
+    INFO=$(curl -fsSL \
+        --retry 5 \
+        --retry-delay 3 \
         -H "Authorization: Bearer $CIVITAI_TOKEN" \
-        -o "$TARGET" \
-        "$LORA_URL"
-fi
+        -H "Accept: application/json" \
+        "https://civitai.com/api/v1/model-versions/$LORA_VERSION_ID")
 
-ls -lh "$TARGET"
+    LORA_NAME=$(echo "$INFO" | jq -r '.files[0].name')
+    LORA_URL=$(echo "$INFO" | jq -r '.files[0].downloadUrl')
 
+    echo "File: $LORA_NAME"
+
+    if [ -z "$LORA_NAME" ] || [ "$LORA_NAME" = "null" ]; then
+        echo "ERROR: LoRA file not found for version $LORA_VERSION_ID"
+        echo "$INFO" | jq .
+        exit 1
+    fi
+
+    if [ -z "$LORA_URL" ] || [ "$LORA_URL" = "null" ]; then
+        echo "ERROR: Download URL not found"
+        exit 1
+    fi
+
+    TARGET="$LORA_DIR/$LORA_NAME"
+
+    if [ -s "$TARGET" ]; then
+        echo "Already exists - SKIP"
+    else
+        echo "Downloading..."
+
+        curl -L \
+            --fail \
+            --retry 10 \
+            --retry-delay 5 \
+            --continue-at - \
+            -H "Authorization: Bearer $CIVITAI_TOKEN" \
+            -o "$TARGET" \
+            "$LORA_URL"
+
+        echo "Downloaded:"
+        ls -lh "$TARGET"
+    fi
+
+done
+
+echo ""
+echo "All Civitai LoRAs installed."
 
 # ======================================
 # PERSONAL LORA - GOOGLE DRIVE
